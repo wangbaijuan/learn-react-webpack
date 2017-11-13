@@ -4,44 +4,85 @@ import ReactDOM from 'react-dom';
 import {
     BrowserRouter as Router,
     Route,
-    Link
+    Link,
+    Switch,
+    Redirect
   } from 'react-router-dom'
 
 
-const App = () => (
-    <div>
-        <h1>Welcome</h1>
-    </div>
-)
+const App = () => {
+    console.log("APP");
+    return (
+            <div className="ui info message">Welcome</div>
+        )
+}
 
-const TV = ({match}) => (
-    <div> 
-        <div className='ui info message'>
-            电视节目列表{match.url}
+const IndexTV = ({location}) => {
+    console.log("IndexTV");
+    console.log(location);
+    return (
+        <div className='ui info message'>电视节目列表</div>
+    )
+}
+
+const TV = ({match,location}) => {
+    console.log(match);
+    console.log(location);
+    console.log("TV");// {path: "/tv", url: "/tv", isExact: true, params: Object}
+    return (
+        <div> 
+            <Switch>
+                <Route exact path={`${match.path}`} component={IndexTV}></Route>
+                <Route path={`${match.path}/shows/:id`} component={Show} />
+                <Route exact path={`${match.url}/shows`} render={() => (
+                    <h3>Please input a show id</h3>
+                )}/>
+            </Switch>    
         </div>
-        {<Route path={`${match.path}/shows/:id`} component={Show}/>}
-        {/* <Route path="/tv/shows/:id" component={Show}/> */}
-        
-    </div>
-)
+    )
+}
 
-const Show = () => (
-    <h3>节目</h3>
-);
+const Show = ({match}) => {
+    console.log("show");
+    return (
+        <h3>节目 {match.params.id}</h3>
+    )
+};
 
-const MainLayout = () => (
+const User = ({match}) => {
+    return (
+        <h3> {match.params.user}</h3>
+    );
+}
 
+const MainLayout = () => {
 
-    <Router>
-        <div>
-            <div className="ui secondary pointing menu">
-                <Link to="/" className="item">首页</Link>
-                <Link to="/tv" className="item">电视</Link>
+    let data = {
+        orderBy: 'date'
+    };
+
+    return (
+        <Router>
+            <div>
+                <div className="ui secondary pointing menu">
+                    <Link to="/" className="item">首页</Link>
+                    <Link to={{
+                            pathname: '/tv',
+                            query: data,
+                            state: { price: 18 }
+                        } 
+                    } className="item">电视</Link>
+                </div>
+
+                <Switch>
+                    <Route exact path='/' component={App}></Route>
+                    <Route path="/tv" component={TV}></Route>
+                    {/* <Route path="/:user" component={User}/> */}
+                    <Redirect path="*" to="/" />
+                </Switch>
             </div>
-            <Route exact path='/' component={App}></Route>
-            <Route path="/tv" component={TV}></Route>
-         </div>
-    </Router>
-)
+        </Router>
+    )
+}
 
 export default MainLayout;
